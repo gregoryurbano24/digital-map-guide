@@ -1,0 +1,337 @@
+<!-- =====================================================================
+  MBS DIGITAL MAP – "HOW TO USE THE MAP" MODULE (responsive)
+  Paste this whole block into a Webflow Code Embed element.
+  - Logo: upload mbs-logo-white-red.png to Webflow Assets, copy its URL,
+    and paste it into the img src (search PASTE_WEBFLOW_LOGO_ASSET_URL_HERE).
+  - Responsive: the layout reacts to the module's OWN width (container
+    queries), so it adapts correctly whether it sits full-width, in a
+    column, or next to the map. Viewport fallbacks cover older browsers.
+  - All styles are scoped to .mbsmg so nothing leaks into the site.
+  - Palette: MBS Navy #001622, MBS Red #AC1F2D, Silver #939CA1, White.
+  - Font: Poppins (Google Fonts). If Poppins is already loaded in the
+    Webflow site settings, you can delete the @import line.
+  - Feature toggles live at the bottom in MBSMG_CONFIG.
+====================================================================== -->
+<section class="mbsmg-wrap" id="mbs-map-guide" aria-labelledby="mbsmg-title">
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap");
+/* Container: lets the module measure its own width */
+.mbsmg-wrap{display:block;width:100%;max-width:1200px;min-width:0;flex:1 1 100%;margin:0 auto;
+  container-type:inline-size;container-name:mbsmg}
+.mbsmg{
+  /* ---- Brand tokens (edit here) ---- */
+  --mbsmg-bg:#001622;           /* MBS Navy */
+  --mbsmg-surface:#0a2230;
+  --mbsmg-surface-2:#132d3c;
+  --mbsmg-line:rgba(147,156,161,.24);
+  --mbsmg-accent:#AC1F2D;       /* MBS Red */
+  --mbsmg-accent-hover:#C42737;
+  --mbsmg-silver:#939CA1;       /* MBS Silver */
+  --mbsmg-text:#ffffff;
+  --mbsmg-muted:#b8c0c5;
+  --mbsmg-radius:14px;
+  --mbsmg-font:'Poppins','Montserrat','Helvetica Neue',Arial,sans-serif;
+  font-family:var(--mbsmg-font);color:var(--mbsmg-text);background:var(--mbsmg-bg);
+  border-radius:var(--mbsmg-radius);padding:clamp(18px,4cqi,44px);
+  box-sizing:border-box;width:100%;line-height:1.55;
+  position:relative;overflow:hidden;-webkit-text-size-adjust:100%
+}
+.mbsmg *,.mbsmg *::before,.mbsmg *::after{box-sizing:border-box;min-width:0}
+.mbsmg img,.mbsmg svg{max-width:100%}
+.mbsmg::before{content:"";position:absolute;inset:0 0 auto 0;height:4px;
+  background:linear-gradient(90deg,var(--mbsmg-accent) 0 40%,var(--mbsmg-silver) 40% 100%)}
+.mbsmg h2,.mbsmg h3,.mbsmg h4,.mbsmg p,.mbsmg button,.mbsmg a{margin:0;font-family:var(--mbsmg-font);color:inherit}
+.mbsmg-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:28px}
+.mbsmg-brand{display:flex;align-items:center;gap:24px;flex:1 1 420px}
+.mbsmg-logo{width:150px;height:auto;flex:none;display:block}
+.mbsmg-divider{width:1px;align-self:stretch;background:var(--mbsmg-line)}
+.mbsmg-eyebrow{font-size:12px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--mbsmg-silver)}
+.mbsmg-title{font-size:clamp(24px,4.5cqi,36px);font-weight:700;line-height:1.1;margin-top:6px!important;letter-spacing:-.01em;overflow-wrap:break-word}
+.mbsmg-sub{color:var(--mbsmg-muted);margin-top:8px!important;max-width:520px;font-size:15px}
+
+/* Tabs */
+.mbsmg-tabs{display:inline-flex;flex:none;background:var(--mbsmg-surface);border:1px solid var(--mbsmg-line);border-radius:999px;padding:4px;gap:4px}
+.mbsmg-tab{appearance:none;-webkit-appearance:none;white-space:nowrap;border:0;background:transparent;color:var(--mbsmg-muted);font-weight:600;font-size:14px;
+  letter-spacing:.04em;text-transform:uppercase;padding:10px 18px;min-height:44px;border-radius:999px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:background .2s,color .2s;touch-action:manipulation}
+.mbsmg-tab svg{width:18px;height:18px;flex:none}
+.mbsmg-tab:hover{color:#fff}
+.mbsmg-tab[aria-selected="true"]{background:var(--mbsmg-accent);color:#fff}
+.mbsmg-tab:focus-visible,.mbsmg-btn:focus-visible{outline:2px solid #fff;outline-offset:3px}
+
+.mbsmg-panel[hidden]{display:none}
+.mbsmg-panel{animation:mbsmg-fade .35s ease}
+@keyframes mbsmg-fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+.mbsmg-h3{font-size:12px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--mbsmg-silver);margin:6px 0 14px!important}
+
+/* Gesture cards */
+.mbsmg-gestures{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:32px}
+.mbsmg-gestures>.mbsmg-card{flex:1 1 170px}
+.mbsmg-card{background:var(--mbsmg-surface);border:1px solid var(--mbsmg-line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.mbsmg-illo{height:92px;border-radius:10px;background:radial-gradient(circle at 50% 40%,var(--mbsmg-surface-2),var(--mbsmg-bg));
+  display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.mbsmg-illo svg{width:100%;height:100%}
+.mbsmg-card h4{font-size:15px;font-weight:600;line-height:1.25}
+.mbsmg-card p{font-size:13.5px;color:var(--mbsmg-muted)}
+.mbsmg-kbd{display:inline-block;font-size:12px;font-weight:600;padding:1px 7px;border-radius:5px;border:1px solid var(--mbsmg-line);background:var(--mbsmg-surface-2);color:#fff;white-space:nowrap}
+
+/* Steps + tips */
+.mbsmg-grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:24px}
+.mbsmg-steps{list-style:none;margin:0;padding:0;counter-reset:mbsmg}
+.mbsmg-steps li{counter-increment:mbsmg;display:grid;grid-template-columns:40px minmax(0,1fr);gap:14px;padding:14px 0;border-top:1px solid var(--mbsmg-line)}
+.mbsmg-steps li:first-child{border-top:0;padding-top:0}
+.mbsmg-steps li::before{content:counter(mbsmg);width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-weight:700;color:#fff;background:var(--mbsmg-accent)}
+.mbsmg-steps h4{font-size:15px;font-weight:600;margin-bottom:2px}
+.mbsmg-steps p{font-size:13.5px;color:var(--mbsmg-muted)}
+.mbsmg-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.mbsmg-chip{font-size:12px;font-weight:500;padding:3px 10px;border-radius:999px;background:var(--mbsmg-surface-2);border:1px solid var(--mbsmg-line);color:#fff;white-space:nowrap}
+.mbsmg-tips{background:var(--mbsmg-surface);border:1px solid var(--mbsmg-line);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px;align-self:start}
+.mbsmg-tip{display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px;font-size:13.5px;color:var(--mbsmg-muted)}
+.mbsmg-tip strong{color:#fff;display:block;font-size:14.5px;font-weight:600}
+.mbsmg-tip svg{width:24px;height:24px;color:var(--mbsmg-silver)}
+.mbsmg-btn{display:flex;width:100%;align-items:center;justify-content:center;gap:8px;margin-top:4px;padding:12px 18px;min-height:48px;border-radius:999px;text-align:center;
+  background:var(--mbsmg-accent);color:#fff!important;text-decoration:none!important;font-weight:600;font-size:14px;letter-spacing:.04em;text-transform:uppercase;transition:background .2s}
+.mbsmg-btn:hover{background:var(--mbsmg-accent-hover)}
+.mbsmg-btn svg{width:16px;height:16px;flex:none}
+
+/* Gesture animations */
+.mbsmg-dot{fill:#fff;opacity:.95}
+.mbsmg-ring{fill:none;stroke:var(--mbsmg-accent);stroke-width:2;opacity:.85}
+.mbsmg-mapgrid{stroke:var(--mbsmg-line);stroke-width:1}
+.mbsmg-pin{fill:var(--mbsmg-accent)}
+.mbsmg-a-pan{animation:mbsmg-pan 2.6s ease-in-out infinite}
+@keyframes mbsmg-pan{0%,100%{transform:translateX(-22px)}50%{transform:translateX(22px)}}
+.mbsmg-a-pinchL{animation:mbsmg-pinchL 2.2s ease-in-out infinite}
+.mbsmg-a-pinchR{animation:mbsmg-pinchR 2.2s ease-in-out infinite}
+@keyframes mbsmg-pinchL{0%,100%{transform:translate(8px,6px)}50%{transform:translate(-14px,-10px)}}
+@keyframes mbsmg-pinchR{0%,100%{transform:translate(-8px,-6px)}50%{transform:translate(14px,10px)}}
+.mbsmg-a-scale{transform-origin:100px 46px;animation:mbsmg-scale 2.2s ease-in-out infinite}
+@keyframes mbsmg-scale{0%,100%{transform:scale(.8)}50%{transform:scale(1.15)}}
+.mbsmg-a-rot{transform-origin:100px 46px;animation:mbsmg-rot 3s ease-in-out infinite}
+@keyframes mbsmg-rot{0%,100%{transform:rotate(-35deg)}50%{transform:rotate(35deg)}}
+.mbsmg-a-tiltF{animation:mbsmg-tiltF 2.4s ease-in-out infinite}
+@keyframes mbsmg-tiltF{0%,100%{transform:translateY(10px)}50%{transform:translateY(-12px)}}
+.mbsmg-a-tiltP{transform-origin:100px 60px;animation:mbsmg-tiltP 2.4s ease-in-out infinite}
+@keyframes mbsmg-tiltP{0%,100%{transform:scaleY(1)}50%{transform:scaleY(.55)}}
+.mbsmg-a-tap{transform-origin:100px 46px;animation:mbsmg-tap 1.8s ease-out infinite}
+@keyframes mbsmg-tap{0%{transform:scale(.4);opacity:.9}80%,100%{transform:scale(1.9);opacity:0}}
+.mbsmg-a-wheel{animation:mbsmg-wheel 1.4s ease-in-out infinite}
+@keyframes mbsmg-wheel{0%,100%{transform:translateY(-3px);opacity:1}60%{transform:translateY(5px);opacity:.3}}
+@media (prefers-reduced-motion:reduce){.mbsmg [class*="mbsmg-a-"],.mbsmg-panel{animation:none!important}}
+
+/* ---------- Responsive (module width) ---------- */
+@container mbsmg (max-width:880px){
+  .mbsmg-grid{grid-template-columns:1fr}
+  .mbsmg-head{align-items:flex-start}
+}
+@container mbsmg (max-width:620px){
+  .mbsmg-head{flex-direction:column;align-items:stretch;margin-bottom:22px}
+  .mbsmg-brand{flex-direction:column;align-items:flex-start;gap:14px;flex:none}
+  .mbsmg-divider{display:none}
+  .mbsmg-logo{width:130px}
+  .mbsmg-sub{font-size:14px}
+  .mbsmg-tabs{display:flex;width:100%}
+  .mbsmg-tab{flex:1 1 0;padding:10px 12px}
+  .mbsmg-gestures{gap:10px;margin-bottom:26px}
+  .mbsmg-gestures>.mbsmg-card{flex:1 1 calc(50% - 5px)}
+  .mbsmg-card{padding:12px}
+  .mbsmg-illo{height:76px}
+  .mbsmg-steps li{grid-template-columns:34px minmax(0,1fr);gap:12px}
+  .mbsmg-steps li::before{width:34px;height:34px;font-size:14px}
+  .mbsmg-tips{padding:16px}
+}
+@container mbsmg (max-width:340px){
+  .mbsmg-gestures>.mbsmg-card{flex-basis:100%}
+  .mbsmg-tab svg{display:none}
+}
+/* Fallback for browsers without container query support */
+@supports not (container-type:inline-size){
+  .mbsmg{padding:clamp(18px,4vw,44px)}
+  .mbsmg-title{font-size:clamp(24px,4vw,36px)}
+  @media (max-width:880px){.mbsmg-grid{grid-template-columns:1fr}}
+  @media (max-width:620px){
+    .mbsmg-head{flex-direction:column;align-items:stretch}
+    .mbsmg-brand{flex-direction:column;align-items:flex-start;gap:14px;flex:none}
+    .mbsmg-divider{display:none}.mbsmg-logo{width:130px}
+    .mbsmg-tabs{display:flex;width:100%}.mbsmg-tab{flex:1 1 0;padding:10px 12px}
+    .mbsmg-gestures{gap:10px}
+    .mbsmg-gestures>.mbsmg-card{flex:1 1 calc(50% - 5px)}
+    .mbsmg-card{padding:12px}.mbsmg-illo{height:76px}
+  }
+}
+</style>
+<div class="mbsmg">
+
+<!-- Header + tabs -->
+<div class="mbsmg-head">
+  <div class="mbsmg-brand">
+    <img class="mbsmg-logo" alt="Mercedes-Benz Stadium" width="420" height="208" src="PASTE_WEBFLOW_LOGO_ASSET_URL_HERE">
+    <span class="mbsmg-divider" aria-hidden="true"></span>
+    <div>
+      <p class="mbsmg-eyebrow">Interactive Stadium Map</p>
+      <h2 class="mbsmg-title" id="mbsmg-title">How to Use the Map</h2>
+      <p class="mbsmg-sub">Find your section, food, restrooms, gates and more across every level of Mercedes-Benz Stadium.</p>
+    </div>
+  </div>
+  <div class="mbsmg-tabs" role="tablist" aria-label="Choose your device">
+    <button class="mbsmg-tab" role="tab" type="button" id="mbsmg-tab-mobile" aria-controls="mbsmg-panel-mobile" aria-selected="true" tabindex="0">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M11 18h2"/></svg>Mobile
+    </button>
+    <button class="mbsmg-tab" role="tab" type="button" id="mbsmg-tab-desktop" aria-controls="mbsmg-panel-desktop" aria-selected="false" tabindex="-1">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>Desktop
+    </button>
+  </div>
+</div>
+
+<!-- ============ MOBILE PANEL ============ -->
+<div class="mbsmg-panel" role="tabpanel" id="mbsmg-panel-mobile" aria-labelledby="mbsmg-tab-mobile">
+  <h3 class="mbsmg-h3">Touch controls</h3>
+  <div class="mbsmg-gestures">
+    <div class="mbsmg-card">
+      <div class="mbsmg-illo" aria-hidden="true"><svg viewBox="0 0 200 92"><g class="mbsmg-mapgrid"><path d="M0 23h200M0 46h200M0 69h200M50 0v92M100 0v92M150 0v92"/></g><g class="mbsmg-a-pan"><circle class="mbsmg-ring" cx="100" cy="46" r="16"/><circle class="mbsmg-dot" cx="100" cy="46" r="9"/></g></svg></div>
+      <h4>Drag to move</h4><p>Slide one finger to move around the map.</p>
+    </div>
+    <div class="mbsmg-card">
+      <div class="mbsmg-illo" aria-hidden="true"><svg viewBox="0 0 200 92"><rect class="mbsmg-a-scale mbsmg-pin" x="88" y="34" width="24" height="24" rx="5" opacity=".5"/><g class="mbsmg-a-pinchL"><circle class="mbsmg-dot" cx="80" cy="34" r="8"/></g><g class="mbsmg-a-pinchR"><circle class="mbsmg-dot" cx="120" cy="58" r="8"/></g></svg></div>
+      <h4>Pinch to zoom</h4><p>Spread two fingers to zoom in, pinch to zoom out.</p>
+    </div>
+    <div class="mbsmg-card">
+      <div class="mbsmg-illo" aria-hidden="true"><svg viewBox="0 0 200 92"><circle class="mbsmg-ring" cx="100" cy="46" r="30" stroke-dasharray="4 6"/><g class="mbsmg-a-rot"><circle class="mbsmg-dot" cx="72" cy="46" r="8"/><circle class="mbsmg-dot" cx="128" cy="46" r="8"/></g></svg></div>
+      <h4>Twist to rotate</h4><p>Turn two fingers to spin the stadium.</p>
+    </div>
+    <div class="mbsmg-card">
+      <div class="mbsmg-illo" aria-hidden="true"><svg viewBox="0 0 200 92"><g class="mbsmg-a-tiltP"><path class="mbsmg-pin" d="M60 70l20-34h40l20 34z" opacity=".5"/></g><g class="mbsmg-a-tiltF"><circle class="mbsmg-dot" cx="86" cy="46" r="8"/><circle class="mbsmg-dot" cx="114" cy="46" r="8"/></g></svg></div>
+      <h4>Two-finger slide to tilt</h4><p>Slide two fingers up or down to see the stadium in 3D.</p>
+    </div>
+    <div class="mbsmg-card">
+      <div class="mbsmg-illo" aria-hidden="true"><svg viewBox="0 0 200 92"><circle class="mbsmg-ring mbsmg-a-tap" cx="100" cy="46" r="14"/><circle class="mbsmg-dot" cx="100" cy="46" r="8"/></svg></div>
+      <h4>Tap a spot</h4><p>Tap any location to see its name, details and options.</p>
+    </div>
+  </div>
+
+  <div class="mbsmg-grid">
+    <div>
+      <h3 class="mbsmg-h3">Find what you need</h3>
+      <ol class="mbsmg-steps">
+        <li><div><h4>Search</h4><p>Tap the search bar and type a section number, concession, restroom or gate.</p>
+          <div class="mbsmg-chips"><span class="mbsmg-chip">Section 223</span><span class="mbsmg-chip">Gate 1</span><span class="mbsmg-chip">Restrooms</span><span class="mbsmg-chip">Team Store</span></div></div></li>
+        <li><div><h4>Browse by category</h4><p>Not sure what you want? Tap a category to see every option at once, like food, drinks or restrooms.</p></div></li>
+        <li><div><h4>Switch levels</h4><p>Use the level picker to move between floors. Locations on other levels stay hidden until you switch.</p>
+          <div class="mbsmg-chips"><span class="mbsmg-chip">Field</span><span class="mbsmg-chip">100</span><span class="mbsmg-chip">S1</span><span class="mbsmg-chip">200</span><span class="mbsmg-chip">S2</span><span class="mbsmg-chip">300</span></div></div></li>
+        <li><div><h4>Open the location card</h4><p>Tap a result to center the map on it and pull up its details. Swipe the card up for more or down to see the map.</p></div></li>
+        <li data-mbsmg-feature="directions"><div><h4>Get directions</h4><p>Tap Directions, choose your starting point and follow the highlighted route, even across levels.</p></div></li>
+      </ol>
+    </div>
+    <aside class="mbsmg-tips" aria-label="Mobile tips">
+      <h3 class="mbsmg-h3" style="margin:0!important">Mobile tips</h3>
+      <div class="mbsmg-tip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+        <div><strong>Scrolling the page?</strong>Swipe outside the map. Inside the map, your finger moves the map instead.</div></div>
+      <div class="mbsmg-tip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/></svg>
+        <div><strong>Lost your bearings?</strong>Zoom out to see the full stadium, then search again.</div></div>
+      <div class="mbsmg-tip" data-mbsmg-feature="accessible"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="4" r="2"/><path d="M12 6v7h5l2 6M8 10a6 6 0 1 0 6 9"/></svg>
+        <div><strong>Need an accessible route?</strong>Turn on the accessible option in directions to avoid stairs and escalators.</div></div>
+      <div class="mbsmg-tip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>
+        <div><strong>Still have a question?</strong>Ask Arthur, our chatbot, for help with parking, policies and more.</div></div>
+      <a class="mbsmg-btn" data-mbsmg-maplink href="#" target="_blank" rel="noopener">Open full-screen map
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg></a>
+    </aside>
+  </div>
+</div>
+
+<!-- ============ DESKTOP PANEL ============ -->
+<div class="mbsmg-panel" role="tabpanel" id="mbsmg-panel-desktop" aria-labelledby="mbsmg-tab-desktop" hidden>
+  <h3 class="mbsmg-h3">Mouse &amp; trackpad controls</h3>
+  <div class="mbsmg-gestures">
+    <div class="mbsmg-card">
+      <div class="mbsmg-illo" aria-hidden="true"><svg viewBox="0 0 200 92"><g class="mbsmg-mapgrid"><path d="M0 23h200M0 46h200M0 69h200M50 0v92M100 0v92M150 0v92"/></g><g class="mbsmg-a-pan"><path class="mbsmg-dot" d="M94 30l0 30 8-7 6 13 5-2-6-13 11 0z"/></g></svg></div>
+      <h4>Click &amp; drag to move</h4><p>Hold the left mouse button and drag to move around.</p>
+    </div>
+    <div class="mbsmg-card">
+      <div class="mbsmg-illo" aria-hidden="true"><svg viewBox="0 0 200 92"><rect x="84" y="18" width="32" height="54" rx="16" fill="none" stroke="#fff" stroke-width="2.5"/><rect class="mbsmg-a-wheel" x="97" y="28" width="6" height="12" rx="3" fill="#AC1F2D"/></svg></div>
+      <h4>Scroll to zoom</h4><p>Use the scroll wheel, or pinch on a trackpad, to zoom in and out.</p>
+    </div>
+    <div class="mbsmg-card">
+      <div class="mbsmg-illo" aria-hidden="true"><svg viewBox="0 0 200 92"><circle class="mbsmg-ring" cx="100" cy="46" r="30" stroke-dasharray="4 6"/><g class="mbsmg-a-rot"><path class="mbsmg-dot" d="M66 30l0 30 8-7 6 13 5-2-6-13 11 0z"/></g></svg></div>
+      <h4>Right-click &amp; drag to rotate</h4><p>Drag left or right to spin. Drag up or down to tilt into 3D.</p>
+    </div>
+    <div class="mbsmg-card">
+      <div class="mbsmg-illo" aria-hidden="true"><svg viewBox="0 0 200 92"><circle class="mbsmg-ring mbsmg-a-tap" cx="100" cy="46" r="14"/><path class="mbsmg-dot" d="M96 40l0 30 8-7 6 13 5-2-6-13 11 0z"/></svg></div>
+      <h4>Click a spot</h4><p>Click any location to see its name, details and options.</p>
+    </div>
+  </div>
+
+  <div class="mbsmg-grid">
+    <div>
+      <h3 class="mbsmg-h3">Find what you need</h3>
+      <ol class="mbsmg-steps">
+        <li><div><h4>Search</h4><p>Click the search bar and type a section number, concession, restroom or gate. Results update as you type.</p>
+          <div class="mbsmg-chips"><span class="mbsmg-chip">Section 223</span><span class="mbsmg-chip">Gate 1</span><span class="mbsmg-chip">Restrooms</span><span class="mbsmg-chip">Team Store</span></div></div></li>
+        <li><div><h4>Browse by category</h4><p>Click a category to highlight every matching spot on the current level.</p></div></li>
+        <li><div><h4>Switch levels</h4><p>Use the level picker to move between floors. Locations on other levels stay hidden until you switch.</p>
+          <div class="mbsmg-chips"><span class="mbsmg-chip">Field</span><span class="mbsmg-chip">100</span><span class="mbsmg-chip">S1</span><span class="mbsmg-chip">200</span><span class="mbsmg-chip">S2</span><span class="mbsmg-chip">300</span></div></div></li>
+        <li><div><h4>Open the location card</h4><p>Click a result to center the map on it. Details open in the side panel.</p></div></li>
+        <li data-mbsmg-feature="directions"><div><h4>Get directions</h4><p>Click Directions, choose your starting point and follow the highlighted route, even across levels.</p></div></li>
+      </ol>
+    </div>
+    <aside class="mbsmg-tips" aria-label="Desktop tips">
+      <h3 class="mbsmg-h3" style="margin:0!important">Desktop tips</h3>
+      <div class="mbsmg-tip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 10h.01M11 10h.01M15 10h.01M7 14h10"/></svg>
+        <div><strong>No right-click?</strong>On a Mac trackpad, hold <span class="mbsmg-kbd">Ctrl</span> and drag to rotate and tilt.</div></div>
+      <div class="mbsmg-tip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+        <div><strong>Want more room?</strong>Open the full-screen map for the biggest view of the stadium.</div></div>
+      <div class="mbsmg-tip" data-mbsmg-feature="accessible"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="4" r="2"/><path d="M12 6v7h5l2 6M8 10a6 6 0 1 0 6 9"/></svg>
+        <div><strong>Need an accessible route?</strong>Turn on the accessible option in directions to avoid stairs and escalators.</div></div>
+      <div class="mbsmg-tip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>
+        <div><strong>Still have a question?</strong>Ask Arthur, our chatbot, for help with parking, policies and more.</div></div>
+      <a class="mbsmg-btn" data-mbsmg-maplink href="#" target="_blank" rel="noopener">Open full-screen map
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8"/></svg></a>
+    </aside>
+  </div>
+</div>
+
+</div><!-- /.mbsmg -->
+<script>
+(function(){
+  /* ---------- CONFIG: flip these as Mappedin features go live ---------- */
+  var MBSMG_CONFIG = {
+    mapUrl: "https://mercedesbenzstadium.webflow.io/map-test#/", // swap to production map URL at launch
+    showDirections: true,      // set false if wayfinding/directions is not live yet
+    showAccessibleRoute: true, // set false if accessible routing is not live yet
+    showFullScreenButton: true
+  };
+  /* -------------------------------------------------------------------- */
+  var root = document.getElementById('mbs-map-guide'); if(!root) return;
+
+  if(!MBSMG_CONFIG.showDirections) root.querySelectorAll('[data-mbsmg-feature="directions"]').forEach(function(el){el.remove();});
+  if(!MBSMG_CONFIG.showAccessibleRoute) root.querySelectorAll('[data-mbsmg-feature="accessible"]').forEach(function(el){el.remove();});
+  root.querySelectorAll('[data-mbsmg-maplink]').forEach(function(a){
+    if(!MBSMG_CONFIG.showFullScreenButton){a.remove();return;}
+    a.href = MBSMG_CONFIG.mapUrl;
+  });
+
+  var tabs = Array.prototype.slice.call(root.querySelectorAll('[role="tab"]'));
+  function select(tab, focus){
+    tabs.forEach(function(t){
+      var on = t === tab;
+      t.setAttribute('aria-selected', on ? 'true' : 'false');
+      t.tabIndex = on ? 0 : -1;
+      document.getElementById(t.getAttribute('aria-controls')).hidden = !on;
+    });
+    if(focus) tab.focus();
+  }
+  tabs.forEach(function(t, i){
+    t.addEventListener('click', function(){ select(t); });
+    t.addEventListener('keydown', function(e){
+      var n = null;
+      if(e.key === 'ArrowRight') n = tabs[(i+1) % tabs.length];
+      if(e.key === 'ArrowLeft')  n = tabs[(i-1+tabs.length) % tabs.length];
+      if(e.key === 'Home') n = tabs[0];
+      if(e.key === 'End')  n = tabs[tabs.length-1];
+      if(n){ e.preventDefault(); select(n, true); }
+    });
+  });
+  select(tabs[0]);
+})();
+</script>
+</section>
